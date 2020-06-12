@@ -1,4 +1,4 @@
-package com.wen.proxy.jdkproxy;
+package com.wen.proxy.jdk;
 
 import sun.misc.ProxyGenerator;
 

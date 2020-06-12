@@ -1,4 +1,4 @@
-package com.wen.proxy.jdkproxy;
+package com.wen.proxy.jdk;
 
 /**
  * 实际对象

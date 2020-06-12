@@ -51,8 +51,8 @@ public class DynamicProxyDemonstration {
         byte[] data = ProxyGenerator.generateProxyClass(name, new Class[]{Subject.class});
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(name + ".class");
-            System.out.println((new File("hello")).getAbsolutePath());
+            String path = System.getProperty("user.dir") + "\\src\\main\\java\\com\\wen\\proxy\\jdk\\";
+            out = new FileOutputStream(path + name + ".class");
             out.write(data);
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,7 +2,6 @@ package com.wen.proxy.jdk;
 
 import sun.misc.ProxyGenerator;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;

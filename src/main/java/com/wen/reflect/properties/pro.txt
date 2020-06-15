@@ -1,0 +1,2 @@
+className = com.wen.reflect.properties.Student
+methodName = show

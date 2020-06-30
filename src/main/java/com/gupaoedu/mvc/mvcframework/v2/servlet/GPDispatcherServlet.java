@@ -45,75 +45,62 @@ public class GPDispatcherServlet extends HttpServlet {
         }
     }
 
+//    private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+//        String url = req.getRequestURI();
+//        String contextPath = req.getContextPath();
+//        url = url.replaceAll(contextPath, ""). replaceAll("/+", "/");
+//
+//        if (!this.handlerMapping.containsKey(url)) {
+//            resp.getWriter().write("404 Not Found!!!");
+//            return;
+//        }
+//        Method method = this.handlerMapping.get(url);
+//        Map<String, String[]> paramMap = req.getParameterMap();
+//        String beanName = toLowerFirstCase(method.getDeclaringClass().getSimpleName());
+//        method.invoke(ioc.get(beanName), new Object[]{req, resp, paramMap.get("name")[0]});
+//    }
+
     private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String url = req.getRequestURI();
         String contextPath = req.getContextPath();
-        url.replaceAll(contextPath, ""). replaceAll("/+", "/");
+        url = url.replaceAll(contextPath, "").replaceAll("/+", "/");
 
         if (!this.handlerMapping.containsKey(url)) {
             resp.getWriter().write("404 Not Found!!!");
             return;
         }
-        Method method = this.handlerMapping.get(url);
-        Map<String, String[]> paramMap = req.getParameterMap();
-        String beanName = toLowerFirstCase(method.getDeclaringClass().getSimpleName());
-        method.invoke(ioc.get(beanName), new Object[]{req, resp, paramMap.get("name")[0]});
-    }
 
-//    private void doDispatch(HttpServletRequest req, HttpServletResponse resp)throws Exception {
-//        String url = req.getRequestURI();
-//        String contextPath = req.getContextPath();
-//        url = url.replaceAll(contextPath,"").replaceAll("/+","/");
-//        if(!this.handlerMapping.containsKey(url)){
-//            resp.getWriter().write("404 Not Found!!");
-//            return;
-//        }
-//
-//        Method method = this.handlerMapping.get(url);
-//        //第一个参数：方法所在的实例
-//        //第二个参数：调用时所需要的实参
-//        Map<String,String[]> params = req.getParameterMap();
-//        //获取方法的形参列表
-//        Class<?> [] parameterTypes = method.getParameterTypes();
-//        //保存请求的url参数列表
-//        Map<String,String[]> parameterMap = req.getParameterMap();
-//        //保存赋值参数的位置
-//        Object [] paramValues = new Object[parameterTypes.length];
-//        //按根据参数位置动态赋值
-//        for (int i = 0; i < parameterTypes.length; i ++){
-//            Class parameterType = parameterTypes[i];
-//            if(parameterType == HttpServletRequest.class){
-//                paramValues[i] = req;
-//                continue;
-//            }else if(parameterType == HttpServletResponse.class){
-//                paramValues[i] = resp;
-//                continue;
-//            }else if(parameterType == String.class){
-//
-//                //提取方法中加了注解的参数
-//                Annotation[] [] pa = method.getParameterAnnotations();
-//                for (int j = 0; j < pa.length ; j ++) {
-//                    for(Annotation a : pa[i]){
-//                        if(a instanceof GPRequestParam){
-//                            String paramName = ((GPRequestParam) a).value();
-//                            if(!"".equals(paramName.trim())){
-//                                String value = Arrays.toString(parameterMap.get(paramName))
-//                                        .replaceAll("\\[|\\]","")
-//                                        .replaceAll("\\s",",");
-//                                paramValues[i] = value;
-//                            }
-//                        }
-//                    }
-//                }
-//
-//            }
-//        }
-//        //投机取巧的方式
-//        //通过反射拿到method所在class，拿到class之后还是拿到class的名称
-//        //再调用toLowerFirstCase获得beanName
-//        String beanName = toLowerFirstCase(method.getDeclaringClass().getSimpleName());
-//        method.invoke(ioc.get(beanName),new Object[]{req,resp,params.get("name")[0]});
-//    }
+        Method method = this.handlerMapping.get(url);
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        Map<String, String[]> parameterMap = req.getParameterMap();
+        Object[] paramValues = new Object[parameterTypes.length];
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            Class<?> parameterType = parameterTypes[i];
+            if (parameterType == HttpServletRequest.class) {
+                paramValues[i] = req;
+            } else if (parameterType == HttpServletResponse.class) {
+                paramValues[i] = resp;
+            } else if (parameterType == String.class) {
+                Annotation[][] pa = method.getParameterAnnotations();
+                for (int j = 0; j < pa.length; j++) {
+                    for (Annotation a : pa[j]) {
+                        if (a instanceof GPRequestParam) {
+                            String paramName = ((GPRequestParam) a).value();
+                            if (!"".equals(paramName.trim())) {
+                                paramValues[i] = Arrays.toString(parameterMap.get(paramName))
+                                        .replaceAll("\\[|\\]", "")
+                                        .replaceAll("\\s", ",");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        String beanName = toLowerFirstCase(method.getDeclaringClass().getSimpleName());
+        method.invoke(ioc.get(beanName), paramValues);
+    }
 
     /**
      * 初始化阶段

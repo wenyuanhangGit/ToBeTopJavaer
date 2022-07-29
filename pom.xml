@@ -42,6 +42,11 @@
             <artifactId>guava</artifactId>
             <version>20.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.objectweb.util.misc</groupId>
+            <artifactId>ow-misc</artifactId>
+            <version>1.0</version>
+        </dependency>
 
     </dependencies>
 

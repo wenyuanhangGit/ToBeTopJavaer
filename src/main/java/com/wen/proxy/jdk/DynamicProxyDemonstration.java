@@ -1,10 +1,11 @@
 package com.wen.proxy.jdk;
 
-import sun.misc.ProxyGenerator;
+//import sun.misc.ProxyGenerator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
@@ -46,14 +47,22 @@ public class DynamicProxyDemonstration {
     }
 
     private static void createProxyClassFile() {
-        String name = "ProxySubject";
-        byte[] data = ProxyGenerator.generateProxyClass(name, new Class[]{Subject.class});
         FileOutputStream out = null;
         try {
+
+            String name = "ProxySubject";
+//            byte[] data = ProxyGenerator.generateProxyClass(name, new Class[]{Subject.class});
+
+
+            Class cl = Class.forName("java.lang.reflect.ProxyGenerator");
+            Method m = cl.getDeclaredMethod("generateProxyClass", String.class, Class[].class);
+            m.setAccessible(true);
+            byte[] data = (byte[]) m.invoke(null, name, new Class[]{Subject.class});
+
             String path = System.getProperty("user.dir") + "\\src\\main\\java\\com\\wen\\proxy\\jdk\\";
             out = new FileOutputStream(path + name + ".class");
             out.write(data);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (null != out) {
